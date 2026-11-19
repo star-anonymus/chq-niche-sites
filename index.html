@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Niche Demo Sites · ClientoraHQ Studio</title>
+<meta name="description" content="Demo websites for local businesses, one for each niche, by ClientoraHQ Studio interns.">
+<style>
+  :root { --bg: #06192a; --card: #0b2c44; --text: #e8f6fb; --muted: #9fbccb; --accent: #29e6ff; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.5 "Segoe UI", system-ui, sans-serif; }
+  main { max-width: 1000px; margin: 0 auto; padding: 32px 16px 64px; }
+  h1 { margin: 0 0 8px; font-size: 28px; }
+  h1 b { color: var(--accent); }
+  p.lead { color: var(--muted); margin: 0 0 28px; }
+  h2 { font-size: 18px; margin: 28px 0 12px; color: var(--accent); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+  a.card { display: block; padding: 14px 16px; background: var(--card); border-radius: 10px; color: var(--text); text-decoration: none; border: 1px solid transparent; }
+  a.card:hover, a.card:focus { border-color: var(--accent); }
+  a.card small { display: block; color: var(--muted); }
+  .note { color: var(--muted); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Niche demo sites by Clientora<b>HQ</b> Studio</h1>
+  <p class="lead">One demo website for each local-business niche. Each intern's work is listed under their name.</p>
+  <div id="list"><p class="note">Loading the sites...</p></div>
+</main>
+<script>
+  // Lists every intern folder and the niche folders inside it, straight from the repository,
+  // so nobody has to edit this page.
+  const repo = 'star-anonymus/chq-niche-sites';
+  const skip = new Set(['starter', '.github']);
+  const list = document.getElementById('list');
+  const pretty = (s) => s.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+  async function dirs(path) {
+    const r = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`);
+    if (!r.ok) throw new Error(`GitHub answered ${r.status}`);
+    return (await r.json()).filter((x) => x.type === 'dir' && !skip.has(x.name)).map((x) => x.name);
+  }
+  async function load() {
+    list.innerHTML = '<p class="note">Loading the sites...</p>';
+    try {
+      const [niches, interns] = await Promise.all([fetch('niches.json').then((r) => r.json()), dirs('')]);
+      const label = Object.fromEntries(niches.map((n) => [n.slug, n.niche]));
+      let html = '';
+      for (const intern of interns) {
+        const sites = await dirs(intern);
+        html += `<h2>${pretty(intern)}</h2><div class="grid">` + (sites.length
+          ? sites.map((s) => `<a class="card" href="${intern}/${s}/">${label[s] || pretty(s)}<small>${intern}/${s}</small></a>`).join('')
+          : '<p class="note">No sites yet.</p>') + '</div>';
+      }
+      list.innerHTML = html || '<p class="note">No sites yet.</p>';
+    } catch (e) {
+      list.innerHTML = `<p class="note">Could not load the list (${e.message}). <button onclick="load()">Retry</button></p>`;
+    }
+  }
+  load();
+</script>
+</body>
+</html>

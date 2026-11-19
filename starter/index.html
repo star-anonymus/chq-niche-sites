@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Demo Business</title>
+<meta name="description" content="Demo website by ClientoraHQ Studio.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="hero">
+  <h1 data-field="name">Demo Business</h1>
+  <p><span data-field="tagline">What the business does</span> in <span data-field="city">City</span></p>
+  <p class="actions"><a class="btn" data-link="whatsapp" href="#">WhatsApp us</a> <a class="btn alt" data-link="call" href="#">Call now</a></p>
+</header>
+
+<main>
+  <!-- Build your niche sections here: services, the three special features, why choose us, gallery, sample reviews -->
+
+  <section id="contact">
+    <h2>Visit us</h2>
+    <p data-field="address">Address</p>
+    <p>Phone: <a data-link="call" href="#"><span data-field="phone">Phone</span></a> · Email: <a data-link="email" href="#"><span data-field="email">Email</span></a></p>
+    <ul id="hours"></ul>
+    <form data-whatsapp="New enquiry from the website">
+      <label>Your name <input name="Name" required></label>
+      <label>Message <textarea name="Message" required></textarea></label>
+      <button class="btn" type="submit">Send on WhatsApp</button>
+    </form>
+  </section>
+</main>
+
+<footer><p>Website by ClientoraHQ Studio</p></footer>
+<a class="wa-float" data-link="whatsapp" href="#" aria-label="Chat on WhatsApp">WhatsApp</a>
+
+<script src="config.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
