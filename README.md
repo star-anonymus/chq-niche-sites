@@ -33,6 +33,7 @@ chq-niche-sites/
 
 ## How to send your work
 
+0. The first time: press **Fork** on GitHub to get your own copy, then clone your fork. (If the founder has added you as a collaborator, you can clone this repository directly instead.)
 1. Create a branch: `git checkout -b <your-name>/<niche-slug>` (for example `ahsan-ali/gyms-fitness`).
 2. Commit only your folder: `git add <your-name>/<niche-slug>` then `git commit -m "gyms-fitness: first version"`.
 3. Push and open a **pull request** to `main`. Fill in the checklist in the pull request.
