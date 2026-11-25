@@ -10,7 +10,8 @@ All images have been selected for maximum visual quality, dramatic gym atmospher
 
 | File Name | Description / Placement | Photographer / Creator | Direct Image Source | License | Target Size |
 |-----------|------------------------|------------------------|---------------------|---------|-------------|
-| `hero.jpg` | Main Hero Arena & Modern Gym Floor | [John Arano](https://unsplash.com/@johnarano) | [Unsplash Photo](https://unsplash.com/photos/1574680096145-d05b474e2155) | Unsplash Free License | ~141 KB |
+| `hero.jpg` | Main Hero Arena & Modern Gym Floor | [John Arano](https://unsplash.com/@johnarano) | [Unsplash Photo](https://unsplash.com/photos/1574680096145-d05b474e2155) | Unsplash Free License | ~65 KB |
+| `arena.jpg` | Strength Arena Gallery View | [John Arano](https://unsplash.com/@johnarano) | [Unsplash Photo](https://unsplash.com/photos/1574680096145-d05b474e2155) | Unsplash Free License | ~32 KB |
 | `gym-floor.jpg` | Main Gym Floor & Power Racks | [Humphrey Muleba](https://unsplash.com/@humphreymuleba) | [Unsplash Photo](https://unsplash.com/photos/1540497077202-7c8a3999166f) | Unsplash Free License | ~140 KB |
 | `weights.jpg` | Calibrated Dumbbells & Free Weights | [Alora Griffiths](https://unsplash.com/@aloragriffiths) | [Unsplash Photo](https://unsplash.com/photos/1584735935682-2f2b69dff9d2) | Unsplash Free License | ~150 KB |
 | `powerlifting.jpg` | Olympic Barbell Deadlift Platform | [Victor Freitas](https://unsplash.com/@victorfreitas) | [Unsplash Photo](https://unsplash.com/photos/1579758629938-03607ccdbaba) | Unsplash Free License | ~150 KB |

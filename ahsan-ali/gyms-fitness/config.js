@@ -36,7 +36,7 @@ const SITE_CONFIG = {
   // Theme & Styling (Black and neon red, powerful)
   colors: {
     primary: "#ff1e42",          // Neon Red
-    primaryHover: "#ff3b5c",
+    primaryHover: "#e0002b",
     primaryGlow: "rgba(255, 30, 66, 0.4)",
     darkBg: "#0a0a0d",            // Deep Pitch Black
     surfaceDark: "#121217",       // Charcoal Card Surface
@@ -61,7 +61,7 @@ const SITE_CONFIG = {
     {
       icon: "chart-line",
       title: "Personalized Progression",
-      description: "Custom biometric body composition scans (InBody) paired with tailored workout routines and diet protocols."
+      description: "Custom biometric body composition scans paired with tailored workout routines and diet protocols."
     },
     {
       icon: "shield-check",
@@ -83,9 +83,9 @@ const SITE_CONFIG = {
       features: [
         "Full gym floor & cardio access",
         "Locker & shower facilities",
-        "Initial fitness & InBody scan",
+        "Initial fitness & body composition assessment",
         "Free locker during workout",
-        "Standard gym mobile app access"
+        "Structured beginner onboarding guide"
       ],
       whatsappPrefill: "Hi {name}! I would like to inquire about joining the Starter Monthly plan ({price})."
     },
@@ -118,13 +118,13 @@ const SITE_CONFIG = {
       isBestValue: false,
       badge: "Maximum Savings",
       features: [
-        "Unrestricted VIP access 365 days",
+        "Full gym floor & recovery zone access",
         "Save 40% over regular rate",
         "6 Personal training sessions included",
-        "Monthly InBody composition tracking",
-        "Free branded gym kit & shaker bottle",
+        "Monthly body composition tracking",
+        "Free gym kit & shaker bottle",
         "Dedicated VIP locker privileges",
-        "Sauna & steam room unlimited access"
+        "Sauna & steam room access"
       ],
       whatsappPrefill: "Hi {name}! I am interested in locking in the Elite Annual Membership ({price}) with maximum savings."
     }
@@ -145,7 +145,7 @@ const SITE_CONFIG = {
       mon: [
         { time: "06:30 AM - 07:30 AM", name: "Morning HIIT & Core Ignition", trainer: "Hamza Khan", intensity: "High", room: "Studio A" },
         { time: "05:30 PM - 06:30 PM", name: "Powerlifting Fundamentals", trainer: "Bilal Ahmed", intensity: "Very High", room: "Strength Arena" },
-        { time: "07:00 PM - 08:00 PM", name: "CrossFit Functional WOD", trainer: "Tariq Malik", intensity: "Extreme", room: "Functional Turf" }
+        { time: "07:00 PM - 08:00 PM", name: "Functional Conditioning WOD", trainer: "Tariq Malik", intensity: "Extreme", room: "Functional Turf" }
       ],
       tue: [
         { time: "07:00 AM - 08:00 AM", name: "Spin & Cardio Shred", trainer: "Hamza Khan", intensity: "High", room: "Cycle Lab" },
@@ -185,7 +185,7 @@ const SITE_CONFIG = {
       name: "Tariq Malik",
       role: "Head Strength & Conditioning Coach",
       experience: "8+ Years Experience",
-      certs: "CSCS • CrossFit L2 • Precision Nutrition",
+      certs: "Certified Strength & Conditioning • Functional Fitness Coach",
       image: "images/trainer-1.jpg",
       quote: "Discipline will carry you through when motivation fades. We build warriors here."
     },
@@ -209,7 +209,7 @@ const SITE_CONFIG = {
 
   // Gallery (7 high-impact photos with bigger view)
   gallery: [
-    { image: "images/hero.jpg", caption: "Olympic Barbells & Premium Strength Arena", tag: "Strength" },
+    { image: "images/arena.jpg", caption: "Olympic Barbells & Premium Strength Arena", tag: "Strength" },
     { image: "images/gym-floor.jpg", caption: "Spacious High-Ceiling Main Gym Floor", tag: "Facility" },
     { image: "images/weights.jpg", caption: "Calibrated Dumbbells & Free Weights Section", tag: "Weights" },
     { image: "images/powerlifting.jpg", caption: "Olympic Barbell Deadlift Platform", tag: "Powerlifting" },
@@ -266,11 +266,11 @@ const SITE_CONFIG = {
 
   // Top News / Announcement Bar Ticker
   newsTicker: [
-    "🔥 SPECIAL ADMISSIONS: 20% OFF ON 3-MONTH PRO TRANSFORMATION PLAN",
-    "⚡ 1-DAY FREE VIP GUEST PASS AVAILABLE NOW FOR NEW MEMBERS",
-    "🏋️‍♂️ CERTIFIED COACHING & OLYMPIC EQUIPMENT IN {city}",
-    "🕒 EXTENDED HOURS: OPEN 7 DAYS A WEEK (MON-FRI 6 AM - 11 PM)",
-    "💥 LADIES & GENTS DEDICATED SLOTS AVAILABLE AT {name}"
+    "★ SPECIAL ADMISSIONS: 20% OFF ON 3-MONTH PRO TRANSFORMATION PLAN",
+    "• 1-DAY FREE VIP GUEST PASS AVAILABLE NOW FOR NEW MEMBERS",
+    "★ CERTIFIED COACHING & OLYMPIC EQUIPMENT IN {city}",
+    "• EXTENDED HOURS: OPEN 7 DAYS A WEEK (MON-FRI 6 AM - 11 PM)",
+    "★ LADIES & GENTS DEDICATED SLOTS AVAILABLE AT {name}"
   ],
 
   // Free Trial Offer

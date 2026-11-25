@@ -17,6 +17,10 @@
 
   if (urlParams.has('name') && urlParams.get('name').trim() !== '') {
     business.name = urlParams.get('name').trim();
+    if (!urlParams.has('email') && business.email) {
+      const slug = business.name.toLowerCase().replace(/[^a-z0-9]+/g, '') || 'gym';
+      business.email = `info@${slug}.pk`;
+    }
   }
   if (urlParams.has('city') && urlParams.get('city').trim() !== '') {
     business.city = urlParams.get('city').trim();
@@ -66,15 +70,25 @@
       .replace(/{phone}/g, business.phoneFormatted || business.phone);
   }
 
-  // Apply Theme Colors if specified in config
-  if (colors.primary) {
+  // Apply Theme Colors only if changed from default CSS tokens (prevents full-page style invalidation)
+  if (colors.primary && colors.primary !== '#ff1e42') {
     document.documentElement.style.setProperty('--color-primary', colors.primary);
   }
-  if (colors.primaryHover) {
+  if (colors.primaryHover && colors.primaryHover !== '#e0002b') {
     document.documentElement.style.setProperty('--color-primary-hover', colors.primaryHover);
   }
-  if (colors.primaryGlow) {
+  if (colors.primaryGlow && colors.primaryGlow !== 'rgba(255, 30, 66, 0.4)' && colors.primaryGlow !== 'rgba(255, 30, 66, 0.45)') {
     document.documentElement.style.setProperty('--color-primary-glow', colors.primaryGlow);
+  }
+
+  function hashConfig(obj) {
+    const s = JSON.stringify(obj || {});
+    let h = 2166136261;
+    for (let i = 0; i < s.length; i++) {
+      h ^= s.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return (h >>> 0).toString(36);
   }
 
   // 2. Personalize Page Text and Elements
@@ -86,40 +100,25 @@
       metaDesc.setAttribute('content', `Join ${business.name} in ${business.city}. High-performance strength training, certified trainers, and group fitness. Claim your free 1-day pass.`);
     }
 
-    // Replace all .dynamic-name
-    document.querySelectorAll('.dynamic-name').forEach(el => {
-      el.textContent = business.name;
-    });
+    // Replace all .dynamic-* only when text actually differs from initial HTML (zero redundant hero relayout)
+    const setIfChanged = (el, val) => { if (el && el.textContent !== val) el.textContent = val; };
+    document.querySelectorAll('.dynamic-name').forEach(el => setIfChanged(el, business.name));
+    const heroTitleEl = document.querySelector('.hero-title');
+    if (heroTitleEl && heroTitleEl.getAttribute('aria-label') !== business.name) {
+      heroTitleEl.setAttribute('aria-label', business.name);
+    }
 
-    // Replace all .dynamic-city
-    document.querySelectorAll('.dynamic-city').forEach(el => {
-      el.textContent = business.city;
-    });
-
-    // Replace all .dynamic-tagline
-    document.querySelectorAll('.dynamic-tagline').forEach(el => {
-      el.textContent = interpolate(business.tagline);
-    });
-
-    // Replace all .dynamic-desc
-    document.querySelectorAll('.dynamic-desc').forEach(el => {
-      el.textContent = interpolate(business.description);
-    });
-
-    // Replace all .dynamic-address
-    document.querySelectorAll('.dynamic-address').forEach(el => {
-      el.textContent = interpolate(business.address);
-    });
-
-    // Replace all .dynamic-phone-text
-    document.querySelectorAll('.dynamic-phone-text').forEach(el => {
-      el.textContent = business.phoneFormatted || business.phone;
-    });
-
-    // Replace all .dynamic-whatsapp-text
-    document.querySelectorAll('.dynamic-whatsapp-text').forEach(el => {
-      el.textContent = business.whatsappFormatted || business.whatsapp;
-    });
+    document.querySelectorAll('.dynamic-city').forEach(el => setIfChanged(el, business.city));
+    const newTagline = interpolate(business.tagline);
+    document.querySelectorAll('.dynamic-tagline').forEach(el => setIfChanged(el, newTagline));
+    const newDesc = interpolate(business.description);
+    document.querySelectorAll('.dynamic-desc').forEach(el => setIfChanged(el, newDesc));
+    const newAddress = interpolate(business.address);
+    document.querySelectorAll('.dynamic-address').forEach(el => setIfChanged(el, newAddress));
+    const phoneDisplay = business.phoneFormatted || business.phone;
+    document.querySelectorAll('.dynamic-phone-text').forEach(el => setIfChanged(el, phoneDisplay));
+    const waDisplay = business.whatsappFormatted || business.whatsapp;
+    document.querySelectorAll('.dynamic-whatsapp-text').forEach(el => setIfChanged(el, waDisplay));
 
     // Update Email
     const emailEl = document.getElementById('dynamic-email');
@@ -142,22 +141,33 @@
       }
     });
 
-    // Update Map Iframe search query
+    // Set Map Iframe lazy data-src dynamically (loaded on scroll via IntersectionObserver for 90+ mobile speed)
     const mapIframe = document.getElementById('google-maps-iframe');
     if (mapIframe) {
       const query = encodeURIComponent(`${business.name} ${business.city} Pakistan`);
-      mapIframe.src = `https://maps.google.com/maps?q=${query}&t=&z=14&ie=UTF8&iwloc=&output=embed`;
+      mapIframe.setAttribute('data-src', `https://maps.google.com/maps?q=${query}&t=&z=14&ie=UTF8&iwloc=&output=embed`);
     }
 
-    // Update Hours list
+    // Update Hours list only when needed (preserves pre-rendered defaults with zero layout shift)
     const hoursListEl = document.getElementById('hours-list');
     if (hoursListEl && hours) {
-      hoursListEl.innerHTML = `
-        <li><strong>Weekdays:</strong> ${hours.weekdays || '06:00 AM - 11:00 PM'}</li>
-        <li><strong>Saturday:</strong> ${hours.saturday || '07:00 AM - 10:00 PM'}</li>
-        <li><strong>Sunday:</strong> ${hours.sunday || '08:00 AM - 08:00 PM'}</li>
-        <li style="margin-top: 0.5rem; color: var(--color-primary); font-size: 0.8125rem;">${hours.summary || 'Open 7 days a week'}</li>
+      const wd = hours.weekdays || '06:00 AM - 11:00 PM';
+      const sat = hours.saturday || '07:00 AM - 10:00 PM';
+      const sun = hours.sunday || '08:00 AM - 08:00 PM';
+      const sum = hours.summary || 'Open 7 Days a Week • Ladies & Gents Dedicated Slots Available';
+      const isDefault = hoursListEl.children.length === 4 &&
+        wd === '06:00 AM - 11:00 PM' &&
+        sat === '07:00 AM - 10:00 PM' &&
+        sun === '08:00 AM - 08:00 PM' &&
+        sum === 'Open 7 Days a Week • Ladies & Gents Dedicated Slots Available';
+      if (!isDefault) {
+        hoursListEl.innerHTML = `
+        <li><strong>Weekdays:</strong> ${wd}</li>
+        <li><strong>Saturday:</strong> ${sat}</li>
+        <li><strong>Sunday:</strong> ${sun}</li>
+        <li style="margin-top: 0.5rem; color: var(--color-primary-text, #ff7088); font-size: 0.8125rem;">${sum}</li>
       `;
+      }
     }
 
     // Set current year
@@ -216,9 +226,7 @@
           <ul class="plan-features">
             ${plan.features.map(f => `
               <li class="plan-feature-item">
-                <svg class="plan-check-icon" viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
-                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                </svg>
+                <span class="plan-check-icon" aria-hidden="true">&#10003;</span>
                 <span>${f}</span>
               </li>
             `).join('')}
@@ -235,7 +243,7 @@
 
   // 5. Render Special Feature 2: Class Timetable by Day (Tabs Switchable)
   let activeDay = 'mon';
-  function setupClassTimetable() {
+  function setupClassTimetable(skipInitialRender) {
     const tabsContainer = document.getElementById('timetable-tabs');
     const contentContainer = document.getElementById('timetable-content');
     if (!tabsContainer || !contentContainer || !config.classTimetable) return;
@@ -243,12 +251,13 @@
     const days = config.classTimetable.days || [];
     const schedule = config.classTimetable.schedule || {};
 
-    // Render Tabs
-    tabsContainer.innerHTML = days.map(d => `
-      <button type="button" class="tab-btn ${d.id === activeDay ? 'active' : ''}" data-day="${d.id}" role="tab" aria-selected="${d.id === activeDay}">
-        ${d.label}
-      </button>
-    `).join('');
+    if (!skipInitialRender || tabsContainer.children.length === 0) {
+      tabsContainer.innerHTML = days.map(d => `
+        <button type="button" class="tab-btn ${d.id === activeDay ? 'active' : ''}" data-day="${d.id}" role="tab" aria-selected="${d.id === activeDay}">
+          ${d.label}
+        </button>
+      `).join('');
+    }
 
     // Function to render active day's classes
     function renderClassesForDay(dayId) {
@@ -300,7 +309,9 @@
       }).join('');
     }
 
-    renderClassesForDay(activeDay);
+    if (!skipInitialRender || contentContainer.children.length === 0) {
+      renderClassesForDay(activeDay);
+    }
 
     // Event listener on tabs
     tabsContainer.addEventListener('click', (e) => {
@@ -328,15 +339,15 @@
       return `
         <article class="trainer-card">
           <div class="trainer-image-box">
-            <img src="${t.image}" alt="${t.name} - ${t.role}" class="trainer-image" loading="lazy">
+            <img src="${t.image}" alt="${t.name} - ${t.role}" class="trainer-image" loading="lazy" width="600" height="400">
             <div class="trainer-overlay"></div>
           </div>
           <div class="trainer-info">
             <h3 class="trainer-name">${t.name}</h3>
             <span class="trainer-role">${t.role}</span>
             <div class="trainer-badges">
-              <span>⚡ ${t.experience}</span>
-              <span>📜 ${t.certs}</span>
+              <span><strong>Exp:</strong> ${t.experience}</span>
+              <span><strong>Certs:</strong> ${t.certs}</span>
             </div>
             <blockquote class="trainer-quote">“${t.quote}”</blockquote>
             <a href="${createWhatsAppUrl(waMsg)}" class="btn btn-sm btn-outline" target="_blank" rel="noopener noreferrer">
@@ -425,25 +436,25 @@
 
       if (bmi < 18.5) {
         category = 'Underweight';
-        categoryColor = '#3b82f6';
+        categoryColor = '#60a5fa';
         // 0 to 18.5 maps to 5% - 25%
         markerPercent = Math.max(5, Math.min(24, (bmi / 18.5) * 25));
         explanation = `<strong>Underweight (BMI &lt; 18.5):</strong> Your score indicates you may be below the optimal weight benchmark. At <em>${business.name}</em>, we recommend our structured hypertrophy resistance program paired with high-calorie nutrition to build lean muscular tissue safely.`;
       } else if (bmi >= 18.5 && bmi <= 24.9) {
         category = 'Normal & Healthy Weight';
-        categoryColor = '#10b981';
+        categoryColor = '#34d399';
         // 18.5 to 25 maps to 26% - 50%
         markerPercent = 25 + ((bmi - 18.5) / 6.4) * 25;
         explanation = `<strong>Optimal Health (BMI 18.5 - 24.9):</strong> Outstanding! You are in the healthy standard weight zone. You have an ideal foundation to focus on body recomposition, boosting cardiovascular stamina, and hitting new strength PRs with our certified trainers.`;
       } else if (bmi >= 25 && bmi <= 29.9) {
         category = 'Overweight';
-        categoryColor = '#f59e0b';
+        categoryColor = '#fbbf24';
         // 25 to 30 maps to 51% - 75%
         markerPercent = 50 + ((bmi - 25) / 5) * 25;
         explanation = `<strong>Overweight (BMI 25 - 29.9):</strong> Your calculated ratio is slightly elevated above the standard range. Our dynamic HIIT classes, barbell circuits, and metabolic conditioning can help you shed fat quickly while safeguarding your muscle mass.`;
       } else {
         category = 'Obese Range';
-        categoryColor = '#ef4444';
+        categoryColor = '#f87171';
         // 30 to 40+ maps to 76% - 95%
         markerPercent = Math.min(96, 75 + ((bmi - 30) / 15) * 20);
         explanation = `<strong>Obesity Category (BMI 30+):</strong> Carrying excess weight places unnecessary strain on your joints and cardiovascular system. Our coaches specialize in joint-friendly, low-impact strength training combined with sustainable dietary adjustments to produce safe, lasting transformation.`;
@@ -461,15 +472,18 @@
     }
 
     calcBtn.addEventListener('click', calculateBmi);
-    // Initial run
-    calculateBmi();
+    // Sync initial WhatsApp link without redundant layout write (default 23.5 is already rendered)
+    if (waCtaEl) {
+      const initWaMsg = `Hi ${business.name}! I calculated my BMI as 23.5 (Normal & Healthy Weight) on your website and would like a consultation on the best training plan for me in ${business.city}.`;
+      waCtaEl.href = createWhatsAppUrl(initWaMsg);
+    }
   }
 
   // 8. Render Gallery with Lightbox ("gallery of 6 or more photos with a bigger view")
   let currentLightboxIndex = 0;
   const galleryItems = config.gallery || [];
 
-  function setupGallery() {
+  function setupGallery(skipInitialRender) {
     const galleryGrid = document.getElementById('gallery-grid');
     const lightboxModal = document.getElementById('lightbox-modal');
     const lightboxImg = document.getElementById('lightbox-img');
@@ -487,19 +501,20 @@
 
     if (!galleryGrid || galleryItems.length === 0) return;
 
-    // Render gallery items
-    galleryGrid.innerHTML = galleryItems.map((item, index) => `
-      <div class="gallery-item" data-index="${index}" tabindex="0" role="button" aria-label="View photo: ${item.caption}">
-        <img src="${item.image}" alt="${item.caption}" loading="lazy">
-        <div class="gallery-item-overlay">
-          <span class="gallery-item-caption">${item.caption}</span>
-          <span class="gallery-zoom-badge">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-            Click to expand
-          </span>
+    if (!skipInitialRender || galleryGrid.children.length === 0) {
+      galleryGrid.innerHTML = galleryItems.map((item, index) => `
+        <div class="gallery-item" data-index="${index}" tabindex="0" role="button" aria-label="View photo: ${item.caption}">
+          <img src="${item.image}" alt="${item.caption}" loading="lazy" width="800" height="600">
+          <div class="gallery-item-overlay">
+            <span class="gallery-item-caption">${item.caption}</span>
+            <span class="gallery-zoom-badge">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+              Click to expand
+            </span>
+          </div>
         </div>
-      </div>
-    `).join('');
+      `).join('');
+    }
 
     function openLightbox(index) {
       currentLightboxIndex = index;
@@ -598,23 +613,21 @@
     });
   }
 
-  // 10. Render Reviews (Mandatory: 3 reviews marked "Sample review: replace with a real one")
+  // 10. Render Reviews (Mandatory: reviews marked "Sample review: replace with a real one")
   function renderReviews() {
     const grid = document.getElementById('reviews-grid');
     if (!grid || !config.reviews) return;
-
-    const starSvg = `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>`;
 
     grid.innerHTML = config.reviews.map(r => `
       <article class="review-card">
         <!-- Mandatory notice from document requirements -->
         <div class="review-sample-badge">
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+          <span aria-hidden="true">&#9432;</span>
           <span>${r.note || 'Sample review: replace with a real one'}</span>
         </div>
 
-        <div class="review-stars" aria-label="${r.rating} out of 5 stars">
-          ${starSvg.repeat(r.rating || 5)}
+        <div class="review-stars" role="img" aria-label="${r.rating} out of 5 stars">
+          <span aria-hidden="true">${'&#9733;'.repeat(r.rating || 5)}</span>
         </div>
 
         <p class="review-text">“${interpolate(r.text)}”</p>
@@ -655,18 +668,18 @@
     const track = document.getElementById('news-marquee-track');
     if (!track) return;
     const tickerItems = config.newsTicker || [
-      "🔥 SPECIAL ADMISSIONS: 20% OFF ON 3-MONTH PRO TRANSFORMATION PLAN",
-      "⚡ 1-DAY FREE VIP GUEST PASS AVAILABLE NOW FOR NEW MEMBERS",
-      "🏋️‍♂️ CERTIFIED COACHING & OLYMPIC EQUIPMENT IN {city}",
-      "🕒 EXTENDED HOURS: OPEN 7 DAYS A WEEK (MON-FRI 6 AM - 11 PM)"
+      "★ SPECIAL ADMISSIONS: 20% OFF ON 3-MONTH PRO TRANSFORMATION PLAN",
+      "• 1-DAY FREE VIP GUEST PASS AVAILABLE NOW FOR NEW MEMBERS",
+      "★ CERTIFIED COACHING & OLYMPIC EQUIPMENT IN {city}",
+      "• EXTENDED HOURS: OPEN 7 DAYS A WEEK (MON-FRI 6 AM - 11 PM)"
     ];
 
     const formatted = tickerItems.map(item => `
       <span class="news-ticker-item">${interpolate(item)}</span>
     `).join(' • ');
 
-    // Triple duplication ensures smooth infinite loop on all screen widths
-    track.innerHTML = `${formatted} • ${formatted} • ${formatted}`;
+    // Two identical halves so CSS translate3d(-50%) loops seamlessly
+    track.innerHTML = `<span class="news-ticker-group">${formatted} • </span><span class="news-ticker-group" aria-hidden="true">${formatted} • </span>`;
   }
 
   // 13. Setup Hero Typewriter Animation
@@ -674,8 +687,8 @@
     const el = document.getElementById('hero-typewriter');
     if (!el) return;
 
-    // Set initial text immediately
-    el.textContent = business.name;
+    // Set initial text only if personalized name differs
+    if (el.textContent !== business.name) el.textContent = business.name;
 
     const phrases = [
       business.name,
@@ -716,23 +729,82 @@
       setTimeout(typeLoop, typingSpeed);
     }
 
-    // Delay first backspace so user can read initial title clearly
-    setTimeout(typeLoop, 2500);
+    // Delay first backspace so initial title & LCP remain rock-solid on load
+    setTimeout(typeLoop, 4500);
   }
 
-  // Initialize all features once DOM is ready
-  document.addEventListener('DOMContentLoaded', () => {
+  // Lazy load embedded Google Map when Contact section approaches viewport
+  function setupLazyMap() {
+    const mapEl = document.getElementById('google-maps-iframe');
+    const contactSec = document.getElementById('contact');
+    if (!mapEl) return;
+
+    function loadMap() {
+      const target = mapEl.getAttribute('data-src');
+      if (!target) return;
+      if (mapEl.tagName === 'IFRAME') {
+        if (!mapEl.getAttribute('src')) mapEl.setAttribute('src', target);
+        return;
+      }
+      const iframe = document.createElement('iframe');
+      iframe.id = 'google-maps-iframe';
+      iframe.title = 'Gym Location Map';
+      iframe.className = 'google-map';
+      iframe.src = target;
+      iframe.loading = 'lazy';
+      iframe.referrerPolicy = 'no-referrer-when-downgrade';
+      iframe.allowFullscreen = true;
+      mapEl.replaceWith(iframe);
+    }
+
+    if ('IntersectionObserver' in window && contactSec) {
+      const observer = new IntersectionObserver((entries) => {
+        if (entries.some(e => e.isIntersecting)) {
+          loadMap();
+          observer.disconnect();
+        }
+      }, { rootMargin: '400px 0px' });
+      observer.observe(contactSec);
+    } else {
+      loadMap();
+    }
+  }
+
+  // Initialize fast while always staying 100% reactive to config.js edits and ?name=&city=&phone= overrides
+  function initSite() {
     applyPersonalization();
-    setupNewsTicker();
     initTypewriter();
-    renderWhyChooseUs();
-    renderMembershipPlans();
-    setupClassTimetable();
-    renderTrainers();
-    setupBmiCalculator();
-    setupGallery();
-    setupFreeTrialForm();
-    renderReviews();
     setupMobileNav();
-  });
+    setupBmiCalculator();
+    setupFreeTrialForm();
+    setupLazyMap();
+
+    // Yield each section independently across macrotasks so no task blocks mobile input (> 50ms)
+    const renderBatches = [
+      () => setupNewsTicker(),
+      () => renderWhyChooseUs(),
+      () => renderMembershipPlans(),
+      () => setupClassTimetable(false),
+      () => renderTrainers(),
+      () => setupGallery(false),
+      () => renderReviews()
+    ];
+
+    let batchIdx = 0;
+    function runNextBatch() {
+      if (batchIdx >= renderBatches.length) return;
+      renderBatches[batchIdx++]();
+      if (batchIdx < renderBatches.length) {
+        setTimeout(runNextBatch, 4);
+      }
+    }
+
+    requestAnimationFrame(() => setTimeout(runNextBatch, 4));
+  }
+
+  if (document.readyState !== 'loading') {
+    initSite();
+  } else {
+    document.addEventListener('DOMContentLoaded', initSite);
+  }
 })();
