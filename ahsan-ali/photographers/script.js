@@ -20,6 +20,17 @@
     }
   }
 
+  // Apply theme colors before inserting dynamic grids
+  if (site.colors) {
+    const root = document.documentElement.style;
+    if (site.colors.primary) root.setProperty('--primary', site.colors.primary);
+    if (site.colors.dark) root.setProperty('--dark', site.colors.dark);
+    if (site.colors.light) root.setProperty('--light', site.colors.light);
+    if (site.colors.surface) root.setProperty('--surface', site.colors.surface);
+    if (site.colors.muted) root.setProperty('--muted', site.colors.muted);
+    if (site.colors.border) root.setProperty('--border', site.colors.border);
+  }
+
   const fillTokens = (str) =>
     String(str ?? '')
       .replace(/\{name\}/g, site.name)
@@ -41,24 +52,22 @@
 
   const wa = (text) => `https://wa.me/${site.whatsapp}?text=${encodeURIComponent(text)}`;
   const telHref = `tel:${site.phone.replace(/[^\d+]/g, '')}`;
+  const cleanEmail = (site.email || '').trim();
+  const emailRow = document.getElementById('email-row');
+  if (emailRow) emailRow.hidden = !cleanEmail;
 
   document.querySelectorAll('[data-link]').forEach((a) => {
     const kind = a.dataset.link;
     if (kind === 'whatsapp') a.href = wa(`Hello ${site.name}, I found you on your website (${site.city}).`);
     if (kind === 'call') a.href = telHref;
-    if (kind === 'email') a.href = `mailto:${site.email}`;
+    if (kind === 'email') {
+      if (cleanEmail) {
+        a.href = `mailto:${cleanEmail}`;
+      } else {
+        a.removeAttribute('href');
+      }
+    }
   });
-
-  // Theme colors from config.js
-  if (site.colors) {
-    const root = document.documentElement.style;
-    if (site.colors.primary) root.setProperty('--primary', site.colors.primary);
-    if (site.colors.dark) root.setProperty('--dark', site.colors.dark);
-    if (site.colors.light) root.setProperty('--light', site.colors.light);
-    if (site.colors.surface) root.setProperty('--surface', site.colors.surface);
-    if (site.colors.muted) root.setProperty('--muted', site.colors.muted);
-    if (site.colors.border) root.setProperty('--border', site.colors.border);
-  }
 
   // Hero media & eyebrow
   const heroImg = document.getElementById('hero-img');
@@ -131,27 +140,33 @@
     return svg;
   };
 
-  // Why Choose Us
+  // Why Choose Us (plus optional deliveryPromise from config.js when filled)
   const whyGrid = document.getElementById('why-grid');
   if (whyGrid && Array.isArray(site.whyChooseUs)) {
     whyGrid.innerHTML = '';
-    site.whyChooseUs.forEach((point) => {
-      const card = document.createElement('article');
-      card.className = 'why-card';
+    const whyItems = [...site.whyChooseUs];
+    if (site.deliveryPromise && (site.deliveryPromise.title || '').trim() && (site.deliveryPromise.text || '').trim()) {
+      whyItems.push(site.deliveryPromise);
+    }
+    whyItems
+      .filter((point) => (point.title || '').trim() && (point.text || '').trim())
+      .forEach((point) => {
+        const card = document.createElement('article');
+        card.className = 'why-card';
 
-      const iconBox = document.createElement('div');
-      iconBox.className = 'why-icon';
-      iconBox.appendChild(createIconSvg(point.icon));
+        const iconBox = document.createElement('div');
+        iconBox.className = 'why-icon';
+        iconBox.appendChild(createIconSvg(point.icon));
 
-      const h3 = document.createElement('h3');
-      h3.textContent = fillTokens(point.title);
+        const h3 = document.createElement('h3');
+        h3.textContent = fillTokens(point.title);
 
-      const p = document.createElement('p');
-      p.textContent = fillTokens(point.text);
+        const p = document.createElement('p');
+        p.textContent = fillTokens(point.text);
 
-      card.append(iconBox, h3, p);
-      whyGrid.appendChild(card);
-    });
+        card.append(iconBox, h3, p);
+        whyGrid.appendChild(card);
+      });
   }
 
   // Lightbox controller (shared by Portfolio & Gallery)
@@ -244,7 +259,7 @@
   const renderPortfolioGrid = () => {
     if (!portfolioGrid) return;
     const filtered = getFilteredPortfolio();
-    portfolioGrid.innerHTML = '';
+    const frag = document.createDocumentFragment();
     filtered.forEach((item, idx) => {
       const btn = document.createElement('button');
       btn.type = 'button';
@@ -277,8 +292,9 @@
       meta.append(left, expand);
       btn.append(img, meta);
       btn.addEventListener('click', () => openLightbox(filtered, idx, btn));
-      portfolioGrid.appendChild(btn);
+      frag.appendChild(btn);
     });
+    portfolioGrid.replaceChildren(frag);
   };
 
   if (filterWrap && Array.isArray(site.portfolioCategories)) {
@@ -351,7 +367,11 @@
 
       const ul = document.createElement('ul');
       ul.className = 'pkg-list';
-      pkg.included.forEach((line) => {
+      const pkgLines = [...pkg.included];
+      if ((pkg.promise || '').trim()) {
+        pkgLines.push(pkg.promise.trim());
+      }
+      pkgLines.forEach((line) => {
         const li = document.createElement('li');
         const check = createIconSvg('check');
         check.setAttribute('width', '16');

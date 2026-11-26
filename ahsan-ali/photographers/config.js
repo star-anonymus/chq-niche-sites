@@ -7,7 +7,7 @@ window.SITE = {
   address: 'Studio 14, Bank Road, Saddar, {city}',
   phone: '03001234567',        // shown on the page and used for the Call button
   whatsapp: '923001234567',    // international format, no + or spaces
-  email: 'hello@lensandlight.example',
+  email: '',                   // optional — leave empty to hide the Email line
   hours: [
     ['Monday to Saturday', '11:00 am to 9:00 pm'],
     ['Sunday', 'By appointment only'],
@@ -38,11 +38,6 @@ window.SITE = {
       text: 'Clean composition and natural light before heavy retouching.',
     },
     {
-      icon: 'clock',
-      title: '7-Day Delivery',
-      text: 'Curated, edited online gallery delivered within one week.',
-    },
-    {
       icon: 'frame',
       title: 'Editorial Consistency',
       text: 'Cohesive monochrome and true-tone frames built to age well.',
@@ -53,6 +48,12 @@ window.SITE = {
       text: 'Full-resolution files licensed for personal albums and brand use.',
     },
   ],
+  // Optional turnaround/delivery promise (e.g. '7-Day Delivery'). Leave empty unless confirmed with the studio.
+  deliveryPromise: {
+    icon: 'clock',
+    title: '',
+    text: '',
+  },
   portfolioCategories: [
     { id: 'all', label: 'All' },
     { id: 'wedding', label: 'Wedding' },
@@ -165,11 +166,12 @@ window.SITE = {
       summary: '90-minute studio or outdoor session',
       eventType: 'Portrait Session',
       featured: false,
+      promise: '', // optional turnaround promise, e.g. 'Gallery within 5 days'
       included: [
         '90 minutes guided shoot in {city}',
         '2 wardrobe & backdrop setups',
         '30 edited high-res photos',
-        'Private online gallery within 5 days',
+        'Private online proof & download gallery',
       ],
     },
     {
@@ -178,6 +180,7 @@ window.SITE = {
       summary: 'Clean e-commerce & campaign visuals',
       eventType: 'Product Shoot',
       featured: false,
+      promise: '',
       included: [
         'Up to 15 hero product frames',
         'Controlled studio lighting & styling',
@@ -191,11 +194,12 @@ window.SITE = {
       summary: 'Up to 5 hours candid event storytelling',
       eventType: 'Corporate / Private Event',
       featured: false,
+      promise: '',
       included: [
         '5 hours single-photographer coverage',
         'Stage, speakers & guest candid frames',
         '150+ color & monochrome edits',
-        'Next-day 15-photo preview set',
+        'Curated highlight preview set',
       ],
     },
     {
@@ -204,6 +208,7 @@ window.SITE = {
       summary: 'Complete ceremony & couple portraits',
       eventType: 'Wedding',
       featured: true,
+      promise: '',
       included: [
         '8 hours full-day documentary coverage',
         'Lead & second photographer team',
@@ -289,7 +294,7 @@ window.SITE = {
       author: 'Zainab Raza',
       context: 'Portrait Session · {city}',
       note: 'Sample review: replace with a real one',
-      text: 'Calm direction, crisp lighting, and clean delivery within five days. Every portrait felt authentic.',
+      text: 'Calm direction, crisp lighting, and natural posing. Every portrait felt authentic.',
     },
     {
       author: 'Saad Mansoor',
