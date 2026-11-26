@@ -17,10 +17,6 @@
 
   if (urlParams.has('name') && urlParams.get('name').trim() !== '') {
     business.name = urlParams.get('name').trim();
-    if (!urlParams.has('email') && business.email) {
-      const slug = business.name.toLowerCase().replace(/[^a-z0-9]+/g, '') || 'gym';
-      business.email = `info@${slug}.pk`;
-    }
   }
   if (urlParams.has('city') && urlParams.get('city').trim() !== '') {
     business.city = urlParams.get('city').trim();
@@ -94,10 +90,10 @@
   // 2. Personalize Page Text and Elements
   function applyPersonalization() {
     // Page Title & Meta
-    document.title = `${business.name} - Premier Gym & Athletic Training in ${business.city}`;
+    document.title = `${business.name} - Strength & Athletic Training in ${business.city}`;
     const metaDesc = document.getElementById('meta-description');
     if (metaDesc) {
-      metaDesc.setAttribute('content', `Join ${business.name} in ${business.city}. High-performance strength training, certified trainers, and group fitness. Claim your free 1-day pass.`);
+      metaDesc.setAttribute('content', `Join ${business.name} in ${business.city}. Strength training, group fitness classes, and guided workouts. Claim your free 1-day pass.`);
     }
 
     // Replace all .dynamic-* only when text actually differs from initial HTML (zero redundant hero relayout)
@@ -120,11 +116,22 @@
     const waDisplay = business.whatsappFormatted || business.whatsapp;
     document.querySelectorAll('.dynamic-whatsapp-text').forEach(el => setIfChanged(el, waDisplay));
 
-    // Update Email
+    // Update Email (hide email row completely when blank in config.js)
     const emailEl = document.getElementById('dynamic-email');
-    if (emailEl) {
-      emailEl.textContent = business.email;
-      emailEl.href = `mailto:${business.email}`;
+    const emailRow = document.getElementById('contact-email-item') || (emailEl && emailEl.closest('.contact-item'));
+    const cleanEmail = (business.email || '').trim();
+    if (emailEl && emailRow) {
+      if (cleanEmail) {
+        emailEl.textContent = cleanEmail;
+        emailEl.href = `mailto:${cleanEmail}`;
+        emailRow.hidden = false;
+        emailRow.style.display = '';
+      } else {
+        emailEl.textContent = '';
+        emailEl.removeAttribute('href');
+        emailRow.hidden = true;
+        emailRow.style.display = 'none';
+      }
     }
 
     // Update Call Buttons
@@ -347,7 +354,7 @@
             <span class="trainer-role">${t.role}</span>
             <div class="trainer-badges">
               <span><strong>Exp:</strong> ${t.experience}</span>
-              <span><strong>Certs:</strong> ${t.certs}</span>
+              ${t.certs && t.certs.trim() ? `<span><strong>Certs:</strong> ${t.certs}</span>` : ''}
             </div>
             <blockquote class="trainer-quote">“${t.quote}”</blockquote>
             <a href="${createWhatsAppUrl(waMsg)}" class="btn btn-sm btn-outline" target="_blank" rel="noopener noreferrer">
@@ -445,7 +452,7 @@
         categoryColor = '#34d399';
         // 18.5 to 25 maps to 26% - 50%
         markerPercent = 25 + ((bmi - 18.5) / 6.4) * 25;
-        explanation = `<strong>Optimal Health (BMI 18.5 - 24.9):</strong> Outstanding! You are in the healthy standard weight zone. You have an ideal foundation to focus on body recomposition, boosting cardiovascular stamina, and hitting new strength PRs with our certified trainers.`;
+        explanation = `<strong>Optimal Health (BMI 18.5 - 24.9):</strong> Outstanding! You are in the healthy standard weight zone. You have an ideal foundation to focus on body recomposition, boosting cardiovascular stamina, and hitting new strength PRs with our coaching team.`;
       } else if (bmi >= 25 && bmi <= 29.9) {
         category = 'Overweight';
         categoryColor = '#fbbf24';
@@ -670,7 +677,7 @@
     const tickerItems = config.newsTicker || [
       "★ SPECIAL ADMISSIONS: 20% OFF ON 3-MONTH PRO TRANSFORMATION PLAN",
       "• 1-DAY FREE VIP GUEST PASS AVAILABLE NOW FOR NEW MEMBERS",
-      "★ CERTIFIED COACHING & OLYMPIC EQUIPMENT IN {city}",
+      "★ STRENGTH COACHING & OLYMPIC BARBELLS IN {city}",
       "• EXTENDED HOURS: OPEN 7 DAYS A WEEK (MON-FRI 6 AM - 11 PM)"
     ];
 
@@ -692,9 +699,9 @@
 
     const phrases = [
       business.name,
-      "FORGE ELITE STRENGTH",
+      "BUILD REAL STRENGTH",
       business.name,
-      `PREMIER GYM IN ${business.city.toUpperCase()}`,
+      `STRENGTH & FITNESS IN ${business.city.toUpperCase()}`,
       business.name
     ];
 

@@ -14,14 +14,14 @@ const SITE_CONFIG = {
   business: {
     name: "IronCore Fitness",
     tagline: "Unleash Your Ultimate Strength & Endurance in {city}",
-    description: "Welcome to {name}, the premier strength, bodybuilding, and high-performance functional training club in {city}. Equipped with Olympic-grade machinery, certified coaching, and a driven community.",
+    description: "Welcome to {name}, a strength, bodybuilding, and functional training club in {city} equipped with Olympic barbells, cardio machines, and dedicated coaching.",
     city: "Lahore",
     address: "Block G3, Phase 5 DHA, {city}, Pakistan",
     phone: "03001234567",
     phoneFormatted: "+92 300 1234567",
     whatsapp: "03001234567",
     whatsappFormatted: "+92 300 1234567",
-    email: "info@ironcorefitness.pk",
+    email: "",
     establishedYear: "2019"
   },
 
@@ -50,13 +50,13 @@ const SITE_CONFIG = {
   whyChooseUs: [
     {
       icon: "dumbbell",
-      title: "Olympic-Grade Equipment",
-      description: "State-of-the-art calibrated plates, power racks, Olympic barbells, and ergonomic resistance machines designed for peak biomechanics."
+      title: "Strength & Cardio Setup",
+      description: "Calibrated plates, power racks, Olympic barbells, and cardio machines arranged for effective strength and conditioning."
     },
     {
       icon: "certificate",
-      title: "Certified Elite Trainers",
-      description: "Internationally certified coaches in biomechanics, sports nutrition, hypertrophy, and functional strength training."
+      title: "Experienced Coaches",
+      description: "Dedicated trainers focused on proper lifting form, nutrition guidance, hypertrophy, and functional strength training."
     },
     {
       icon: "chart-line",
@@ -179,13 +179,13 @@ const SITE_CONFIG = {
     }
   },
 
-  // Certified Trainers (Male Strength & Conditioning Specialists)
+  // Gym Trainers (Male Strength & Conditioning Specialists)
   trainers: [
     {
       name: "Tariq Malik",
       role: "Head Strength & Conditioning Coach",
       experience: "8+ Years Experience",
-      certs: "Certified Strength & Conditioning • Functional Fitness Coach",
+      certs: "",
       image: "images/trainer-1.jpg",
       quote: "Discipline will carry you through when motivation fades. We build warriors here."
     },
@@ -193,7 +193,7 @@ const SITE_CONFIG = {
       name: "Hamza Khan",
       role: "Functional Strength & Cross-Training Lead",
       experience: "6+ Years Experience",
-      certs: "ACE Certified • Kettlebell Master • Athletic Performance",
+      certs: "",
       image: "images/trainer-2.jpg",
       quote: "Master proper form first. Consistency with heavy basics yields undeniable power."
     },
@@ -201,7 +201,7 @@ const SITE_CONFIG = {
       name: "Bilal Ahmed",
       role: "Powerlifting & Hypertrophy Coach",
       experience: "7+ Years Experience",
-      certs: "IPF National Athlete • ISSN Sports Nutritionist",
+      certs: "",
       image: "images/trainer-3.jpg",
       quote: "Heavy squats and disciplined nutrition leave no room for excuses. Build true resilience."
     }
@@ -246,7 +246,7 @@ const SITE_CONFIG = {
       tag: "Member for 8 months",
       rating: 5,
       note: "Sample review: replace with a real one",
-      text: "The deadlift platforms and calibrated plates are world-class. If you are serious about strength gains and powerlifting in {city}, this is the ultimate facility."
+      text: "The deadlift platforms and weight plates are well maintained. If you are serious about strength gains and powerlifting in {city}, this is a solid facility."
     },
     {
       author: "Mustafa Javed",
@@ -268,7 +268,7 @@ const SITE_CONFIG = {
   newsTicker: [
     "★ SPECIAL ADMISSIONS: 20% OFF ON 3-MONTH PRO TRANSFORMATION PLAN",
     "• 1-DAY FREE VIP GUEST PASS AVAILABLE NOW FOR NEW MEMBERS",
-    "★ CERTIFIED COACHING & OLYMPIC EQUIPMENT IN {city}",
+    "★ STRENGTH COACHING & OLYMPIC BARBELLS IN {city}",
     "• EXTENDED HOURS: OPEN 7 DAYS A WEEK (MON-FRI 6 AM - 11 PM)",
     "★ LADIES & GENTS DEDICATED SLOTS AVAILABLE AT {name}"
   ],
